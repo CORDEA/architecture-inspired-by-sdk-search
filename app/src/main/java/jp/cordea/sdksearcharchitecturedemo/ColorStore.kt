@@ -3,10 +3,11 @@ package jp.cordea.sdksearcharchitecturedemo
 import kotlinx.coroutines.experimental.delay
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ColorStore {
+class ColorStore @Inject constructor() {
     private var items: List<Color> = emptyList()
 
     suspend fun update(items: List<Color>) {
