@@ -31,11 +31,22 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
 
         launch(UI, parent = job) {
             synchronizer.state.consumeEach {
-                updateModel(when (it) {
-                    ColorSynchronizer.SyncState.COMPLETED ->
-                        model.copy(state = it, items = store.get().map { MainListItemModel(it) })
-                    else -> model.copy(state = it)
-                })
+                when (it) {
+                    ColorSynchronizer.SyncState.SYNC ->
+                        updateModel(model.copy(state = SyncState.SYNC))
+                    ColorSynchronizer.SyncState.FAILED ->
+                        updateModel(model.copy(state = SyncState.FAILED))
+                    ColorSynchronizer.SyncState.COMPLETED -> store.fetch()
+                }
+            }
+        }
+
+        launch(UI, parent = job) {
+            store.items.consumeEach {
+                updateModel(model.copy(
+                        state = SyncState.COMPLETED,
+                        items = it.map { MainListItemModel(it) }
+                ))
             }
         }
 
@@ -51,7 +62,13 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
 
     sealed class Event
     data class Model(
-            val state: ColorSynchronizer.SyncState = ColorSynchronizer.SyncState.COMPLETED,
+            val state: SyncState = SyncState.COMPLETED,
             val items: List<MainListItemModel> = emptyList()
     )
+
+    enum class SyncState {
+        SYNC,
+        COMPLETED,
+        FAILED
+    }
 }

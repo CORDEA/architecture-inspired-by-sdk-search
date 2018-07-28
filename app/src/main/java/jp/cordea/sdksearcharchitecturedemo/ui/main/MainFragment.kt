@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import dagger.android.support.AndroidSupportInjection
-import jp.cordea.sdksearcharchitecturedemo.ColorSynchronizer
 import jp.cordea.sdksearcharchitecturedemo.databinding.MainFragmentBinding
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.channels.consumeEach
@@ -52,7 +51,7 @@ class MainFragment : Fragment() {
     private fun subscribe() {
         launch(UI) {
             viewModel.models.consumeEach {
-                if (it.state == ColorSynchronizer.SyncState.COMPLETED) {
+                if (it.state == MainViewModel.SyncState.COMPLETED) {
                     adapter.addAll(it.items.map { listItem.get().apply { model = it } })
                 }
             }
