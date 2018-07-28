@@ -1,14 +1,21 @@
 package jp.cordea.sdksearcharchitecturedemo.ui.main
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import jp.cordea.sdksearcharchitecturedemo.BaseViewModel
+import jp.cordea.sdksearcharchitecturedemo.ColorStore
+import jp.cordea.sdksearcharchitecturedemo.ColorSynchronizer
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.RendezvousChannel
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.launch
+import javax.inject.Inject
 
 class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewModel.Event> {
+
+    @Inject
+    lateinit var synchronizer: ColorSynchronizer
+    @Inject
+    lateinit var store: ColorStore
 
     private val mutableModels: ConflatedBroadcastChannel<Model> = ConflatedBroadcastChannel()
     override val models: ReceiveChannel<Model> = mutableModels.openSubscription()
@@ -16,9 +23,35 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     private val mutableEvents: RendezvousChannel<Event> = RendezvousChannel()
     override val events: SendChannel<Event> = mutableEvents
 
+    private var model: MainViewModel.Model = Model()
+
     override fun start(): Job {
+        val job = Job()
+        model = Model()
+
+        launch(UI, parent = job) {
+            synchronizer.state.consumeEach {
+                updateModel(when (it) {
+                    ColorSynchronizer.SyncState.COMPLETED ->
+                        model.copy(state = it, items = store.get().map { MainListItemModel(it) })
+                    else -> model.copy(state = it)
+                })
+            }
+        }
+
+        synchronizer.sync()
+
+        return job
     }
 
-    sealed class Model
+    private fun updateModel(newModel: MainViewModel.Model) {
+        model = newModel
+        mutableModels.offer(newModel)
+    }
+
     sealed class Event
+    data class Model(
+            val state: ColorSynchronizer.SyncState = ColorSynchronizer.SyncState.COMPLETED,
+            val items: List<MainListItemModel> = emptyList()
+    )
 }
