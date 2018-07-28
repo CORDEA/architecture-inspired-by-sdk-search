@@ -1,10 +1,10 @@
 package jp.cordea.sdksearcharchitecturedemo
 
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProviders
-import android.arch.lifecycle.ViewModelStoreOwner
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelStoreOwner
 import dagger.Module
 import dagger.Provides
 import kotlin.reflect.KClass

@@ -1,6 +1,6 @@
 package jp.cordea.sdksearcharchitecturedemo.ui.main
 
-import android.arch.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewModelStoreOwner
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
