@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
@@ -29,6 +30,7 @@ class MainFragment : Fragment() {
     lateinit var listItem: Provider<MainListItem>
 
     private val adapter: GroupAdapter<ViewHolder> = GroupAdapter()
+    private lateinit var binding: MainFragmentBinding
     private lateinit var job: Job
     private lateinit var childViewJob: Job
 
@@ -44,6 +46,7 @@ class MainFragment : Fragment() {
     ): View = MainFragmentBinding.inflate(inflater, container, false).also {
         setHasOptionsMenu(true)
         it.recyclerView.adapter = adapter
+        binding = it
     }.root
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -68,9 +71,21 @@ class MainFragment : Fragment() {
     private fun subscribe() {
         launch(UI) {
             viewModel.models.consumeEach {
-                if (it.state == MainViewModel.SyncState.COMPLETED) {
-                    adapter.clear()
-                    adapter.addAll(it.items.map { listItem.get().apply { model = it } })
+                when (it.state) {
+                    MainViewModel.SyncState.SYNC -> {
+                        binding.errorView.isVisible = false
+                        binding.progressView.isVisible = true
+                    }
+                    MainViewModel.SyncState.COMPLETED -> {
+                        binding.errorView.isVisible = false
+                        binding.progressView.isVisible = false
+                        adapter.clear()
+                        adapter.addAll(it.items.map { listItem.get().apply { model = it } })
+                    }
+                    MainViewModel.SyncState.FAILED -> {
+                        binding.progressView.isVisible = false
+                        binding.errorView.isVisible = true
+                    }
                 }
             }
         }
