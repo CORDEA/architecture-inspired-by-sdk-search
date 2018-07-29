@@ -50,6 +50,14 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
             }
         }
 
+        launch(UI, parent = job) {
+            mutableEvents.consumeEach {
+                when (it) {
+                    is MainViewModel.Event.QueryChanged -> store.fetchBy(it.query)
+                }
+            }
+        }
+
         synchronizer.sync()
 
         return job

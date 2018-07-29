@@ -29,6 +29,7 @@ class MainFragment : Fragment() {
     lateinit var listItem: Provider<MainListItem>
 
     private val adapter: GroupAdapter<ViewHolder> = GroupAdapter()
+    private lateinit var job: Job
     private lateinit var childViewJob: Job
 
     override fun onAttach(context: Context?) {
@@ -48,7 +49,7 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         subscribe()
-        viewModel.start()
+        job = viewModel.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -61,12 +62,14 @@ class MainFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         childViewJob.cancel()
+        job.cancel()
     }
 
     private fun subscribe() {
         launch(UI) {
             viewModel.models.consumeEach {
                 if (it.state == MainViewModel.SyncState.COMPLETED) {
+                    adapter.clear()
                     adapter.addAll(it.items.map { listItem.get().apply { model = it } })
                 }
             }
