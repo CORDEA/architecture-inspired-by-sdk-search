@@ -3,12 +3,14 @@ package jp.cordea.sdksearcharchitecturedemo.ui.main
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import dagger.android.support.AndroidSupportInjection
 import jp.cordea.sdksearcharchitecturedemo.R
 import jp.cordea.sdksearcharchitecturedemo.databinding.MainFragmentBinding
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.launch
@@ -27,6 +29,7 @@ class MainFragment : Fragment() {
     lateinit var listItem: Provider<MainListItem>
 
     private val adapter: GroupAdapter<ViewHolder> = GroupAdapter()
+    private lateinit var childViewJob: Job
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -51,6 +54,13 @@ class MainFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_main, menu)
+        val searchView = (menu.findItem(R.id.search).actionView as SearchView)
+        childViewJob = SearchBinder(searchView).bind(viewModel)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        childViewJob.cancel()
     }
 
     private fun subscribe() {

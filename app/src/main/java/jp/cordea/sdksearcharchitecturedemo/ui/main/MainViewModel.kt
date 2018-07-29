@@ -60,7 +60,10 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
         mutableModels.offer(newModel)
     }
 
-    sealed class Event
+    sealed class Event {
+        data class QueryChanged(val query: String) : Event()
+    }
+
     data class Model(
             val state: SyncState = SyncState.COMPLETED,
             val items: List<MainListItemModel> = emptyList()
