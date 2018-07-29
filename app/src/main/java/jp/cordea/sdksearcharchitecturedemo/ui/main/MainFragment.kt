@@ -2,13 +2,12 @@ package jp.cordea.sdksearcharchitecturedemo.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import dagger.android.support.AndroidSupportInjection
+import jp.cordea.sdksearcharchitecturedemo.R
 import jp.cordea.sdksearcharchitecturedemo.databinding.MainFragmentBinding
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.channels.consumeEach
@@ -39,6 +38,7 @@ class MainFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View = MainFragmentBinding.inflate(inflater, container, false).also {
+        setHasOptionsMenu(true)
         it.recyclerView.adapter = adapter
     }.root
 
@@ -46,6 +46,11 @@ class MainFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         subscribe()
         viewModel.start()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_main, menu)
     }
 
     private fun subscribe() {
