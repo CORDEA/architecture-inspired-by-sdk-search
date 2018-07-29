@@ -18,7 +18,7 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     lateinit var store: ColorStore
 
     private val mutableModels: ConflatedBroadcastChannel<Model> = ConflatedBroadcastChannel()
-    override val models: ReceiveChannel<Model> = mutableModels.openSubscription()
+    override val models: ReceiveChannel<Model> get() = mutableModels.openSubscription()
 
     private val mutableEvents: RendezvousChannel<Event> = RendezvousChannel()
     override val events: SendChannel<Event> = mutableEvents

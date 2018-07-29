@@ -13,7 +13,7 @@ class ColorStore @Inject constructor() {
     private var cachedItems: List<Color> = emptyList()
     private val mutableItems: ConflatedBroadcastChannel<List<Color>> =
             ConflatedBroadcastChannel()
-    val items: ReceiveChannel<List<Color>> = mutableItems.openSubscription()
+    val items: ReceiveChannel<List<Color>> get() = mutableItems.openSubscription()
 
     suspend fun update(items: List<Color>) {
         delay(Random().nextInt(2).toLong(), TimeUnit.SECONDS)

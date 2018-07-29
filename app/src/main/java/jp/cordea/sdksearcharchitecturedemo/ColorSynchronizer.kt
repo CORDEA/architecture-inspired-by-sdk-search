@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class ColorSynchronizer {
     private val random: Random = Random()
     private val mutableState: ConflatedBroadcastChannel<SyncState> = ConflatedBroadcastChannel()
-    val state: ReceiveChannel<SyncState> = mutableState.openSubscription()
+    val state: ReceiveChannel<SyncState> get() = mutableState.openSubscription()
 
     fun sync() {
         mutableState.offer(SyncState.SYNC)
