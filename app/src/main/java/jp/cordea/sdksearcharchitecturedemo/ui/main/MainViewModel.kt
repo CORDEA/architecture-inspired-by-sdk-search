@@ -27,7 +27,6 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
 
     override fun start(): Job {
         val job = Job()
-        model = Model()
 
         launch(UI, parent = job) {
             synchronizer.state.consumeEach {
@@ -58,7 +57,9 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
             }
         }
 
-        synchronizer.sync()
+        if (model.state != SyncState.COMPLETED) {
+            synchronizer.sync()
+        }
 
         return job
     }
@@ -73,11 +74,12 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     }
 
     data class Model(
-            val state: SyncState = SyncState.COMPLETED,
+            val state: SyncState = SyncState.INIT,
             val items: List<MainListItemModel> = emptyList()
     )
 
     enum class SyncState {
+        INIT,
         SYNC,
         COMPLETED,
         FAILED

@@ -71,6 +71,7 @@ class MainFragment : Fragment() {
     private fun subscribe() {
         launch(UI) {
             viewModel.models.consumeEach {
+                adapter.clear()
                 when (it.state) {
                     MainViewModel.SyncState.SYNC -> {
                         binding.errorView.isVisible = false
@@ -79,7 +80,6 @@ class MainFragment : Fragment() {
                     MainViewModel.SyncState.COMPLETED -> {
                         binding.errorView.isVisible = false
                         binding.progressView.isVisible = false
-                        adapter.clear()
                         adapter.addAll(it.items.map { listItem.get().apply { model = it } })
                     }
                     MainViewModel.SyncState.FAILED -> {
