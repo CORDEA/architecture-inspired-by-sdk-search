@@ -23,11 +23,10 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     private val mutableEvents: RendezvousChannel<Event> = RendezvousChannel()
     override val events: SendChannel<Event> = mutableEvents
 
+    private val job = Job()
     private var model: MainViewModel.Model = Model()
 
-    override fun start(): Job {
-        val job = Job()
-
+    override fun start() {
         launch(UI, parent = job) {
             synchronizer.state.consumeEach {
                 when (it) {
@@ -57,11 +56,12 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
             }
         }
 
-        if (model.state != SyncState.COMPLETED) {
-            synchronizer.sync()
-        }
+        synchronizer.sync()
+    }
 
-        return job
+    override fun onCleared() {
+        super.onCleared()
+        job.cancel()
     }
 
     private fun updateModel(newModel: MainViewModel.Model) {
@@ -74,12 +74,11 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     }
 
     data class Model(
-            val state: SyncState = SyncState.INIT,
+            val state: SyncState = SyncState.SYNC,
             val items: List<MainListItemModel> = emptyList()
     )
 
     enum class SyncState {
-        INIT,
         SYNC,
         COMPLETED,
         FAILED

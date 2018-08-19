@@ -30,6 +30,7 @@ class MainFragment : Fragment() {
     lateinit var listItem: Provider<MainListItem>
 
     private val adapter: GroupAdapter<ViewHolder> = GroupAdapter()
+
     private lateinit var binding: MainFragmentBinding
     private lateinit var job: Job
     private lateinit var childViewJob: Job
@@ -51,8 +52,11 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        subscribe()
-        job = viewModel.start()
+
+        job = subscribe()
+        if (savedInstanceState == null) {
+            viewModel.start()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -68,24 +72,22 @@ class MainFragment : Fragment() {
         job.cancel()
     }
 
-    private fun subscribe() {
-        launch(UI) {
-            viewModel.models.consumeEach {
-                adapter.clear()
-                when (it.state) {
-                    MainViewModel.SyncState.SYNC -> {
-                        binding.errorView.isVisible = false
-                        binding.progressView.isVisible = true
-                    }
-                    MainViewModel.SyncState.COMPLETED -> {
-                        binding.errorView.isVisible = false
-                        binding.progressView.isVisible = false
-                        adapter.addAll(it.items.map { listItem.get().apply { model = it } })
-                    }
-                    MainViewModel.SyncState.FAILED -> {
-                        binding.progressView.isVisible = false
-                        binding.errorView.isVisible = true
-                    }
+    private fun subscribe() = launch(UI) {
+        viewModel.models.consumeEach {
+            adapter.clear()
+            when (it.state) {
+                MainViewModel.SyncState.SYNC -> {
+                    binding.errorView.isVisible = false
+                    binding.progressView.isVisible = true
+                }
+                MainViewModel.SyncState.COMPLETED -> {
+                    binding.errorView.isVisible = false
+                    binding.progressView.isVisible = false
+                    adapter.addAll(it.items.map { listItem.get().apply { model = it } })
+                }
+                MainViewModel.SyncState.FAILED -> {
+                    binding.progressView.isVisible = false
+                    binding.errorView.isVisible = true
                 }
             }
         }
