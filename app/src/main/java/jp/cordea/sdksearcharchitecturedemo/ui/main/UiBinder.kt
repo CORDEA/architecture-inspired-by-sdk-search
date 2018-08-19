@@ -8,7 +8,7 @@ interface UiBinder<T : Any> {
     fun bind(model: T, oldModel: T?)
 }
 
-fun <T : Any> UiBinder<T>.bindTo(viewModel: BaseViewModel<T, *>) =
+fun <T : Any> UiBinder<T>.bindTo(viewModel: BaseViewModel<T>) =
         launch(Unconfined) {
             var oldModel: T? = null
             for (model in viewModel.models) {

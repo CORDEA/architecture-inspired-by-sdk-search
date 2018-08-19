@@ -19,6 +19,9 @@ interface MainFragmentModule {
 interface MainFragmentBindModule {
     @Binds
     fun bindViewModelStoreOwner(fragment: MainFragment): ViewModelStoreOwner
+
+    @Binds
+    fun bindEventDispatcher(viewModel: MainViewModel): EventDispatcher
 }
 
 @Module

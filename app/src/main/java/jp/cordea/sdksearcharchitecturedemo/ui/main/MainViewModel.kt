@@ -10,7 +10,9 @@ import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
-class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewModel.Event> {
+class MainViewModel : ViewModel(),
+        BaseViewModel<MainViewModel.Model>,
+        EventDispatcher {
 
     @Inject
     lateinit var synchronizer: ColorSynchronizer
@@ -21,7 +23,7 @@ class MainViewModel : ViewModel(), BaseViewModel<MainViewModel.Model, MainViewMo
     override val models: ReceiveChannel<Model> get() = mutableModels.openSubscription()
 
     private val mutableEvents: RendezvousChannel<Event> = RendezvousChannel()
-    override val events: SendChannel<Event> = mutableEvents
+    override val events: SendChannel<Event> get() = mutableEvents
 
     private val job = Job()
     private var model: MainViewModel.Model = Model()

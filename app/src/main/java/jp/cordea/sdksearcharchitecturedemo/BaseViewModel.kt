@@ -1,10 +1,8 @@
 package jp.cordea.sdksearcharchitecturedemo
 
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.SendChannel
 
-interface BaseViewModel<M, E> {
+interface BaseViewModel<M> {
     val models: ReceiveChannel<M>
-    val events: SendChannel<E>
     fun start()
 }

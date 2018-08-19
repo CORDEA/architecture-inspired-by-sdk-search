@@ -21,6 +21,8 @@ class MainFragment : Fragment() {
     lateinit var viewModel: MainViewModel
     @Inject
     lateinit var adapter: MainAdapter
+    @Inject
+    lateinit var eventDispatcher: EventDispatcher
 
     private lateinit var binding: MainFragmentBinding
     private lateinit var job: Job
@@ -54,7 +56,7 @@ class MainFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_main, menu)
         val searchView = (menu.findItem(R.id.search).actionView as SearchView)
-        childViewJob = SearchUiBinder(searchView).bindTo(viewModel)
+        childViewJob = SearchUiBinder(searchView, eventDispatcher).bindTo(viewModel)
     }
 
     override fun onDestroy() {

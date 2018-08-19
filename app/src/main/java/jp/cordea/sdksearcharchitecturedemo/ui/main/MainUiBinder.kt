@@ -9,6 +9,9 @@ class MainUiBinder(
 ) : UiBinder<MainViewModel.Model> {
 
     override fun bind(model: MainViewModel.Model, oldModel: MainViewModel.Model?) {
+        if (model == oldModel) {
+            return
+        }
         adapter.clear()
         when (model.state) {
             MainViewModel.SyncState.SYNC -> {
