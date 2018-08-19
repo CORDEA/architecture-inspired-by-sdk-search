@@ -4,19 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.ViewHolder
 import dagger.android.support.AndroidSupportInjection
 import jp.cordea.sdksearcharchitecturedemo.R
 import jp.cordea.sdksearcharchitecturedemo.databinding.MainFragmentBinding
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
-import javax.inject.Provider
 
 class MainFragment : Fragment() {
 
@@ -27,9 +20,7 @@ class MainFragment : Fragment() {
     @Inject
     lateinit var viewModel: MainViewModel
     @Inject
-    lateinit var listItem: Provider<MainListItem>
-
-    private val adapter: GroupAdapter<ViewHolder> = GroupAdapter()
+    lateinit var adapter: MainAdapter
 
     private lateinit var binding: MainFragmentBinding
     private lateinit var job: Job
@@ -53,7 +44,7 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        job = subscribe()
+        job = MainUiBinder(binding, adapter).bindTo(viewModel)
         if (savedInstanceState == null) {
             viewModel.start()
         }
@@ -70,26 +61,5 @@ class MainFragment : Fragment() {
         super.onDestroy()
         childViewJob.cancel()
         job.cancel()
-    }
-
-    private fun subscribe() = launch(UI) {
-        viewModel.models.consumeEach {
-            adapter.clear()
-            when (it.state) {
-                MainViewModel.SyncState.SYNC -> {
-                    binding.errorView.isVisible = false
-                    binding.progressView.isVisible = true
-                }
-                MainViewModel.SyncState.COMPLETED -> {
-                    binding.errorView.isVisible = false
-                    binding.progressView.isVisible = false
-                    adapter.addAll(it.items.map { listItem.get().apply { model = it } })
-                }
-                MainViewModel.SyncState.FAILED -> {
-                    binding.progressView.isVisible = false
-                    binding.errorView.isVisible = true
-                }
-            }
-        }
     }
 }
