@@ -63,7 +63,7 @@ class MainFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_main, menu)
         val searchView = (menu.findItem(R.id.search).actionView as SearchView)
-        childViewJob = SearchBinder(searchView).bind(viewModel)
+        childViewJob = SearchUiBinder(searchView).bindTo(viewModel)
     }
 
     override fun onDestroy() {
