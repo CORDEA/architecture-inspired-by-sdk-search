@@ -6,10 +6,9 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
+import javax.inject.Inject
 
-@Singleton
-class ColorSynchronizer {
+class ColorSynchronizer @Inject constructor() {
     private val random: Random = Random()
     private val mutableState: ConflatedBroadcastChannel<SyncState> = ConflatedBroadcastChannel()
     val state: ReceiveChannel<SyncState> get() = mutableState.openSubscription()
