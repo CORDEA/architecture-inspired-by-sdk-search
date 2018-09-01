@@ -30,22 +30,18 @@ class MainViewModel : ViewModel(),
     override fun start() {
         launch(UI, parent = job) {
             synchronizer.state.consumeEach {
-                when (it) {
-                    ColorSynchronizer.SyncState.SYNC ->
-                        updateModel(model.copy(state = SyncState.SYNC))
-                    ColorSynchronizer.SyncState.FAILED ->
-                        updateModel(model.copy(state = SyncState.FAILED))
-                    ColorSynchronizer.SyncState.COMPLETED ->
-                        updateModel(model.copy(state = SyncState.COMPLETED))
-                }
+                updateModel(model.copy(
+                        initializeState = it.initialize.toSyncState(),
+                        filterState = it.filter.toSyncState()
+                ))
             }
         }
 
         launch(UI, parent = job) {
-            synchronizer.result.consumeEach {
-                updateModel(when (it) {
+            synchronizer.result.consumeEach { result ->
+                updateModel(when (result) {
                     is ColorFetchResult -> model.copy(
-                            items = (it as ColorFetchResult.Success).colors
+                            items = (result as ColorFetchResult.Success).colors
                                     .map { MainListItemModel(it) }
                     )
                 })
@@ -74,18 +70,29 @@ class MainViewModel : ViewModel(),
         mutableModels.offer(newModel)
     }
 
+    private fun ColorSynchronizer.SyncState.toSyncState(): SyncState =
+            when (this) {
+                ColorSynchronizer.SyncState.SYNC -> SyncState.SYNC
+                ColorSynchronizer.SyncState.COMPLETED -> SyncState.COMPLETED
+                ColorSynchronizer.SyncState.FAILED -> SyncState.FAILED
+            }
+
     sealed class Event {
         data class QueryChanged(val query: String) : Event()
     }
 
     data class Model(
-            val state: SyncState = SyncState.SYNC,
+            val initializeState: SyncState = SyncState.SYNC,
+            val filterState: SyncState = SyncState.SYNC,
             val items: List<MainListItemModel> = emptyList()
     )
 
     enum class SyncState {
         SYNC,
         COMPLETED,
-        FAILED
+        FAILED;
+
+        val isCompleted get() = this == COMPLETED
+        val isFailed get() = this == FAILED
     }
 }
